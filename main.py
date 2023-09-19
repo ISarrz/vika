@@ -18,7 +18,6 @@ class SettingsWindow(QMainWindow, Ui_settings):
         self.MainMenu = None
 
     def close_window(self):
-        print("close")
         self.close()
 
     def apply(self):
@@ -33,7 +32,6 @@ class SettingsWindow(QMainWindow, Ui_settings):
         values = self.data.values.tolist()
 
         for selected in self.tableWidget.selectedRanges():
-            print(selected.topRow(), selected.leftColumn(), selected.bottomRow(), selected.rightColumn())
             for index in range(selected.leftColumn(), selected.rightColumn() + 1, 1):
                 book[headers[index]] = [values[j][index] for j in range(selected.topRow(), selected.bottomRow(), 1)]
 
