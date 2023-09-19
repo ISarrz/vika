@@ -1,165 +1,123 @@
 from PyQt5.Qt import *
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar, FigureCanvasQTAgg
-from PyQt5 import QtCore, QtWidgets
-from matplotlib.figure import Figure
+from PyQt5.QtWidgets import *
+from PyQt5 import QtWidgets
 import pandas as pd
+from styles.SettingsMenuStyle import Ui_settings
+from styles.MainMenuStyle import Ui_MainWindow
 import sys
 
-from PyQt5 import QtWidgets, QtGui
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-import sys
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
 
+class SettingsWindow(QMainWindow, Ui_settings):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setupUi(self)
+        self.pushButton.pressed.connect(self.apply)
+        self.pushButton_2.pressed.connect(self.close_window)
+        self.setMinimumSize(500, 400)
+        self.data = None
+        self.MainMenu = None
 
-class AnotherWindow(QWidget):
-    """
-    This "window" is a QWidget. If it has no parent, it
-    will appear as a free-floating window as we want.
-    """
-    def __init__(self):
-        super().__init__()
-        layout = QVBoxLayout()
-        self.label = QLabel("Another Window")
-        layout.addWidget(self.label)
-        self.setLayout(layout)
+    def close_window(self):
+        print("close")
+        self.close()
 
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("Plot")
-        MainWindow.resize(800, 600)
-        self.w = None
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
-        self.setWindowIcon(QtGui.QIcon('icon.jpg'))
-        self.centralwidget.setObjectName("centralwidget")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.horizontalLayout = QtWidgets.QHBoxLayout()
-        self.horizontalLayout.setObjectName("horizontalLayout")
+    def apply(self):
+        if self.LineEdit.text():
+            self.MainMenu.delimiter = self.LineEdit.text()
 
-        self.verticalLayout.addLayout(self.horizontalLayout)
+        if self.data.empty or not self.tableWidget.selectedRanges():
+            return
 
-        self.drawScreen = MplCanvas(self, width=5, height=4, dpi=100)
-        self.verticalLayout.addWidget(self.drawScreen)
+        book = {}
+        headers = self.data.columns
+        values = self.data.values.tolist()
 
-        self.toolbar = NavigationToolbar(self.drawScreen, self)
+        for selected in self.tableWidget.selectedRanges():
+            print(selected.topRow(), selected.leftColumn(), selected.bottomRow(), selected.rightColumn())
+            for index in range(selected.leftColumn(), selected.rightColumn() + 1, 1):
+                book[headers[index]] = [values[j][index] for j in range(selected.topRow(), selected.bottomRow(), 1)]
 
-        bar = self.menuBar()
-        self.file = bar.addMenu("Файл")
+        self.data = pd.DataFrame(book)
+        self.MainMenu.drawScreen.axes.cla()
 
-        open = QAction("Открыть", self)
-        #save.setShortcut("Ctrl+S")
-        open.triggered.connect(self.open)
-        self.file.addAction(open)
+        self.data.plot(ax=self.MainMenu.drawScreen.axes)
+        self.MainMenu.drawScreen.draw()
 
-        open = QAction("Настройки", self)
-        # save.setShortcut("Ctrl+S")
-        open.triggered.connect(self.settings)
-        self.file.addAction(open)
+    def update(self):
+        self.LineEdit.setText(self.MainMenu.delimiter)
+        if self.data.empty:
+            return
+        self.tableWidget.setColumnCount(len(self.data.columns))
+        self.tableWidget.setRowCount(self.data.shape[0])
 
+        self.tableWidget.setHorizontalHeaderLabels(self.data.columns)
 
-
-        save = QAction("Save", self)
-        save.setShortcut("Ctrl+S")
-        self.file.addAction(save)
-
-        edit = self.file.addMenu("Edit")
-        edit.addAction("copy")
-        edit.addAction("paste")
-
-        quit = QAction(QIcon("D:/_Qt/__Qt/img/exit.png"), "Quit", self)
-        quit.setShortcut('Ctrl+Q')
-
-        self.file.addAction(quit)
-
-        #self.file.triggered[QAction].connect(self.processtrigger)
-
-        bar.setFixedSize(75, 40)
-        font = bar.font()
-        font.setPointSize(12)
-        bar.setFont(font)
-
-
-
-
-
-
-        self.horizontalLayout.addWidget(bar)
-
-        self.horizontalLayout.addWidget(self.toolbar)
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 18))
-        self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
-
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
-    def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Графики"))
-
-    def open(self):
-        print('open')
-        self.drawScreen.axes.cla()
-
-
-
-        file_dialog = QFileDialog()
-        file_path, _ = file_dialog.getOpenFileName(None, "Открыть файл")
-
-    def settings(self):
-        print('settings')
-        if self.w is None:
-            self.w = AnotherWindow()
-        self.w.show()
-class MplCanvas(FigureCanvasQTAgg):
-
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
-        super(MplCanvas, self).__init__(fig)
-
-
-
+        values = self.data.values.tolist()
+        for i, val in enumerate(values):
+            for j, it in enumerate(val):
+                self.tableWidget.setItem(i, j, QTableWidgetItem(str(it)))
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
-
+        self.w = None
+        self.delimiter = ','
+        self.data = pd.DataFrame({})
         self.setMinimumSize(500, 400)
+        bar = self.menuBar()
+        self.file = bar.addMenu("Файл")
 
-    def func(self):
+        open = QAction("Открыть", self)
+        open.triggered.connect(self.open)
+        self.file.addAction(open)
 
+        cl = QAction("Закрыть", self)
+        cl.triggered.connect(self.close_file)
+        self.file.addAction(cl)
+
+        open = QAction("Настройки", self)
+        open.triggered.connect(self.settings)
+        self.file.addAction(open)
+
+        bar.setFixedSize(75, 40)
+        font = bar.font()
+        font.setPointSize(12)
+        bar.setFont(font)
+
+        self.horizontalLayout.addWidget(bar)
+
+        self.horizontalLayout.addWidget(self.toolbar)
+
+    def close_file(self):
+        self.data = pd.DataFrame({})
         self.drawScreen.axes.cla()
-
-        if self.lineEdit.text() == "":
-            delimiter = ","
-        else:
-            delimiter = self.lineEdit.text()
-
-        file_dialog = QFileDialog()
-        file_path, _ = file_dialog.getOpenFileName(None, "Открыть файл")
-
-        if self.lineEdit2.text() != "" and self.lineEdit2.text().isdigit():
-            data = pd.read_csv(file_path, delimiter=delimiter)
-            nrows = int(self.lineEdit2.text())
-            if data.shape[0] > nrows:
-                data = pd.read_csv(file_path, delimiter=delimiter, nrows=nrows)
-        else:
-            data = pd.read_csv(file_path, delimiter=delimiter)
-
-        data.plot(ax=self.drawScreen.axes)
-
         self.drawScreen.draw()
+
+    def open(self):
+        try:
+            file_dialog = QFileDialog()
+            file_path, _ = file_dialog.getOpenFileName(None, "Открыть файл")
+            self.data = pd.read_csv(file_path, delimiter=self.delimiter)
+            self.update()
+        except Exception:
+            pass
+
+    def update(self):
+        if self.data.empty:
+            return
+        self.drawScreen.axes.cla()
+        self.data.plot(ax=self.drawScreen.axes)
+        self.drawScreen.draw()
+
+    def settings(self):
+        if self.w is None:
+            self.w = SettingsWindow()
+        self.w.MainMenu = self
+        self.w.data = self.data
+        self.w.update()
+        self.w.show()
 
 
 if __name__ == "__main__":
