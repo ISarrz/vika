@@ -28,8 +28,8 @@ class SettingsWindow(QMainWindow, Ui_settings):
             return
 
         book = {}
-        headers = self.data.columns
-        values = self.data.values.tolist()
+        headers = self.MainMenu.data.columns
+        values = self.MainMenu.data.values.tolist()
 
         for selected in self.tableWidget.selectedRanges():
             for index in range(selected.leftColumn(), selected.rightColumn() + 1, 1):
