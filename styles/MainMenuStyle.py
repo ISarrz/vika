@@ -10,7 +10,7 @@ class MplCanvas(FigureCanvasQTAgg):
         super(MplCanvas, self).__init__(fig)
 
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
+    def setupUi(self, MainWindow):  # файл стиля, подключаем различные виджеты
         MainWindow.setObjectName("Plot")
         MainWindow.resize(800, 600)
 
@@ -21,7 +21,6 @@ class Ui_MainWindow(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-
         self.verticalLayout.addLayout(self.horizontalLayout)
 
         self.drawScreen = MplCanvas(self, width=5, height=4, dpi=100)

@@ -2,7 +2,7 @@ from PyQt5 import QtCore, QtWidgets
 
 
 class Ui_settings(object):
-    def setupUi(self, settings):
+    def setupUi(self, settings):  # файл стиля, подключаем различные виджеты
         settings.setObjectName("settings")
         settings.resize(759, 600)
         self.centralwidget = QtWidgets.QWidget(settings)
@@ -50,6 +50,5 @@ class Ui_settings(object):
     def retranslateUi(self, settings):
         _translate = QtCore.QCoreApplication.translate
         settings.setWindowTitle(_translate("settings", "Настройки"))
-
         self.pushButton_2.setText(_translate("settings", "Ок"))
         self.pushButton.setText(_translate("settings", "Принять"))
