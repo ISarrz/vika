@@ -62,10 +62,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        self.setMinimumSize(500, 400)
         self.w = None
         self.delimiter = ','
         self.data = pd.DataFrame({})
-        self.setMinimumSize(500, 400)
+
+        # Меню "Файл"
         bar = self.menuBar()
         self.file = bar.addMenu("Файл")
 
@@ -87,7 +89,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         bar.setFont(font)
 
         self.horizontalLayout.addWidget(bar)
-
         self.horizontalLayout.addWidget(self.toolbar)
 
     def close_file(self):

@@ -1,12 +1,6 @@
-from PyQt5.Qt import *
-from PyQt5.QtWidgets import *
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar, FigureCanvasQTAgg
 from PyQt5 import QtCore, QtWidgets, QtGui
 from matplotlib.figure import Figure
-import pandas as pd
-from styles.SettingsMenuStyle import Ui_settings
-
-import sys
 
 class MplCanvas(FigureCanvasQTAgg):
 
