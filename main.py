@@ -70,32 +70,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.delimiter = ','  # переменная для хранения разделителя
         self.data = pd.DataFrame({})  # переменная для dataframe
 
-        # создаем выпадающее меню "Файл"
-        bar = self.menuBar()
-        self.file = bar.addMenu("Файл")
-
         # добавляем пункты меню и привязываем их к функциям
-        open = QAction("Открыть", self)
-        open.triggered.connect(self.open)
-        self.file.addAction(open)
 
-        cl = QAction("Закрыть", self)
-        cl.triggered.connect(self.close_file)
-        self.file.addAction(cl)
-
-        open = QAction("Настройки", self)
-        open.triggered.connect(self.settings)
-        self.file.addAction(open)
-
-        # задаем размер и шрифт меню
-        bar.setFixedSize(75, 40)
-        font = bar.font()
-        font.setPointSize(12)
-        bar.setFont(font)
-
-        # добавляем в layout
-        self.horizontalLayout.addWidget(bar)
-        self.horizontalLayout.addWidget(self.toolbar)
+        self.openAction.triggered.connect(self.open)
+        self.closeAction.triggered.connect(self.close_file)
+        self.settingsAction.triggered.connect(self.settings)
 
     def close_file(self):  # функция закрытия файла очищает холст и данные
         self.data = pd.DataFrame({})
