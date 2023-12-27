@@ -1,7 +1,8 @@
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar, FigureCanvasQTAgg
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtWidgets import QAction
+from PyQt5.QtWidgets import QAction, QMenu, QPushButton, QVBoxLayout
 from matplotlib.figure import Figure
+
 
 class MplCanvas(FigureCanvasQTAgg):
 
@@ -9,6 +10,7 @@ class MplCanvas(FigureCanvasQTAgg):
         fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = fig.add_subplot(111)
         super(MplCanvas, self).__init__(fig)
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):  # файл стиля, подключаем различные виджеты
@@ -30,39 +32,33 @@ class Ui_MainWindow(object):
         self.toolbar = NavigationToolbar(self.drawScreen, self)
 
         MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 18))
-        self.menubar.setObjectName("menubar")
-        self.menubar.setFixedSize(75, 40)
 
-        self.file = self.menubar.addMenu("Файл")
+        self.menu = QMenu()
         self.openAction = QAction("Открыть", self)
-
-        self.file.addAction(self.openAction)
-
+        self.menu.addAction(self.openAction)
         self.closeAction = QAction("Закрыть", self)
-
-        self.file.addAction(self.closeAction)
-
+        self.menu.addAction(self.closeAction)
         self.settingsAction = QAction("Настройки", self)
+        self.menu.addAction(self.settingsAction)
 
-        self.file.addAction(self.settingsAction)
-
-        # задаем размер и шрифт меню
-
-        font = self.menubar.font()
+        self.pushButton = QPushButton()
+        self.pushButton.setObjectName("pushButton")
+        self.pushButton.setText("ФАЙЛ")
+        font = self.pushButton.font()
         font.setPointSize(14)
         font.setBold(True)
-        self.menubar.setFont(font)
+        self.pushButton.setFont(font)
+        self.pushButton.pressed.connect(self.open_menu)
+        self.pushButton.setChecked(True)
 
 
-        # добавляем в layout
-        self.horizontalLayout.addWidget(self.menubar)
+        self.menu.close()
+
+        self.horizontalLayout.addWidget(self.pushButton)
         self.horizontalLayout.addWidget(self.toolbar)
 
+        self.check = False
 
-
-        MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
@@ -70,7 +66,13 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+    def open_menu(self):
 
+        self.menu.move(self.frameGeometry().topLeft().x() + 2,
+                       self.frameGeometry().topLeft().y() + 80)
+
+        self.menu.exec_()
+        self.pushButton.clearFocus()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate

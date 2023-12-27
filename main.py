@@ -34,17 +34,17 @@ class SettingsWindow(QMainWindow, Ui_settings):
         # создаем новый dataframe с выбранными значениями
         book = {}  # словарь для значений
         headers = self.MainMenu.data.columns  # список заголовков
-        values = self.MainMenu.data.values.tolist()  # вложенный список всех значений
+        # values = self.MainMenu.data.values.tolist()  # вложенный список всех значений
 
-        for selected in self.tableWidget.selectedRanges():  # бежим по выбранным значениям и добавляем их в book
-            for index in range(selected.leftColumn(), selected.rightColumn() + 1, 1):
-                book[headers[index]] = [values[j][index] for j in range(selected.topRow(), selected.bottomRow(), 1)]
-
-        self.data = pd.DataFrame(book)  # переводим book в dataframe
-        self.MainMenu.drawScreen.axes.cla()  # очищаем холст
-
-        self.data.plot(ax=self.MainMenu.drawScreen.axes)  # рисуем график
-        self.MainMenu.drawScreen.draw()  # обновляем холст
+        # for selected in self.tableWidget.selectedRanges():  # бежим по выбранным значениям и добавляем их в book
+        #     for index in range(selected.leftColumn(), selected.rightColumn() + 1, 1):
+        #         book[headers[index]] = [values[j][index] for j in range(selected.topRow(), selected.bottomRow(), 1)]
+        #
+        # self.data = pd.DataFrame(book)  # переводим book в dataframe
+        # self.MainMenu.drawScreen.axes.cla()  # очищаем холст
+        #
+        # self.data.plot(ax=self.MainMenu.drawScreen.axes)  # рисуем график
+        # self.MainMenu.drawScreen.draw()  # обновляем холст
 
     def update(self):  # функция обновления окна
         self.LineEdit.setText(self.MainMenu.delimiter)  # устанавливаем в строку текущий разделитель
