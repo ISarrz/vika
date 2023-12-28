@@ -7,7 +7,7 @@ from matplotlib.figure import Figure
 class MplCanvas(FigureCanvasQTAgg):
 
     def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
+        fig = Figure(figsize=(6, 4), dpi=dpi)
         self.axes = fig.add_subplot(111)
         super(MplCanvas, self).__init__(fig)
 
@@ -26,7 +26,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.verticalLayout.addLayout(self.horizontalLayout)
 
-        self.drawScreen = MplCanvas(self, width=5, height=4, dpi=100)
+        self.drawScreen = MplCanvas(self)
         self.verticalLayout.addWidget(self.drawScreen)
 
         self.toolbar = NavigationToolbar(self.drawScreen, self)

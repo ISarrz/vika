@@ -6,8 +6,14 @@ from styles.SettingsMenuStyle import Ui_settings
 from styles.MainMenuStyle import Ui_MainWindow
 from styles.DataMenuStyle import Ui_data
 import sys
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar, FigureCanvasQTAgg
+class MplCanvas(FigureCanvasQTAgg):
 
-
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        fig = Figure(figsize=(6, 4), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+        super(MplCanvas, self).__init__(fig)
 class DataWinwow(QMainWindow, Ui_data):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -154,6 +160,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             for i in range(len(x)):
                 self.drawScreen.axes.plot(x[i], y[i], label=label[i])
             self.drawScreen.axes.grid()
+
             self.drawScreen.axes.legend()
             self.drawScreen.axes.plot()
 
@@ -166,13 +173,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 values.append(i[0])
             self.drawScreen.axes.pie(values, labels=labels, autopct='%.2f')
         elif self.data_type == 'sd':
+            self.drawScreen = MplCanvas(self)
+            self.verticalLayout.itemAt(1).widget().deleteLater()
+            self.verticalLayout.addWidget(self.drawScreen)
             labels = []
             values = []
             for i in self.data.values:
                 labels.append(i[1])
                 values.append(i[0])
-            self.drawScreen.axes.grid()
+
+            # self.drawScreen.axes.set_xscale(1)
+
+            # self.drawScreen.axes.set_figwidth(4)
             self.drawScreen.axes.bar(labels, values)
+            # self.drawScreen.axes.grid(False)
+
         self.drawScreen.draw()
 
 
