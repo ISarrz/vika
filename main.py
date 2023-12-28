@@ -20,6 +20,7 @@ class DataWinwow(QMainWindow, Ui_data):
         self.pushButton.clicked.connect(self.apply)
         self.pushButton_2.clicked.connect(self.close)
         self.SettingsMenu = None
+        self.MainMenu = None
 
     def apply(self):  # функция принять
         print("ok")
@@ -36,13 +37,12 @@ class DataWinwow(QMainWindow, Ui_data):
 
         for selected in self.tableWidget.selectedRanges():  # бежим по выбранным значениям и добавляем их в book
             for index in range(selected.leftColumn(), selected.rightColumn() + 1, 1):
-                book[headers[index]] = [values[j][index] for j in range(selected.topRow(), selected.bottomRow(), 1)]
+                book[headers[index]] = [values[j][index] for j in range(selected.topRow(), selected.bottomRow() + 1, 1)]
 
-        self.data = pd.DataFrame(book)  # переводим book в dataframe
-        self.MainMenu.drawScreen.axes.cla()  # очищаем холст
+        self.MainMenu.data = pd.DataFrame(book)
+        self.data = pd.DataFrame(book)# переводим book в dataframe
 
-        self.data.plot(ax=self.MainMenu.drawScreen.axes)  # рисуем график
-        self.MainMenu.drawScreen.draw()  # обновляем холст
+
 
     def update(self):  # функция обновления окна
         # устанавливаем в строку текущий разделитель
@@ -88,11 +88,14 @@ class SettingsWindow(QMainWindow, Ui_settings):
             self.MainMenu.data_type = 'rd'
         elif self.comboBox.currentText() == 'Столбчатая диаграмма':
             self.MainMenu.data_type = 'sd'
+
+        self.MainMenu.update()
     def open(self):
         if self.DataMenu is None:
             self.DataMenu = DataWinwow()  # создаем объект класса меню настроек
         self.DataMenu.SettingsMenu = self
-        self.DataMenu.data = self.data  # передаем ему данные и объект класса основного окна
+        self.DataMenu.data = self.data
+        self.DataMenu.MainMenu = self.MainMenu# передаем ему данные и объект класса основного окна
         self.DataMenu.update()
         self.DataMenu.show()
 
@@ -107,6 +110,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.delimiter = ','  # переменная для хранения разделителя
         self.data = pd.DataFrame({})  # переменная для dataframe
         self.data_type = 'g'
+        self.axis_name = ['x', 'y']
 
 
         # добавляем пункты меню и привязываем их к функциям
@@ -125,7 +129,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             file_dialog = QFileDialog()
             file_path, _ = file_dialog.getOpenFileName(None, "Открыть файл")
             self.data = pd.read_csv(file_path, delimiter=self.delimiter)
-            self.update()
             self.settings()
         except Exception:
             pass
@@ -133,26 +136,43 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def update(self):  # функция обновления рисует холст
         if self.data.empty:
             return
-
+        self.drawScreen.axes.cla()
         if self.data_type == 'g':
             x = [[] for i in range(len(self.data.values[0]) // 2)]
             y = [[] for i in range(len(self.data.values[0]) // 2)]
+            label = []
+            for i in range(len(self.data.columns)):
+                if i % 2:
+                    label.append(self.data.columns[i])
             for i in self.data.values:
                 for e, j in enumerate(i):
                     if e % 2:
                         y[e // 2].append(j)
                     else:
                         x[e // 2].append(j)
-                pass
-            for i in range(len(x)):
 
-                self.drawScreen.axes.cla()
-                self.data.plot(x[i], y[i])
+            for i in range(len(x)):
+                self.drawScreen.axes.plot(x[i], y[i], label=label[i])
+            self.drawScreen.axes.grid()
+            self.drawScreen.axes.legend()
+            self.drawScreen.axes.plot()
+
 
         elif self.data_type == 'rd':
-            pass
+            labels = []
+            values = []
+            for i in self.data.values:
+                labels.append(i[1])
+                values.append(i[0])
+            self.drawScreen.axes.pie(values, labels=labels, autopct='%.2f')
         elif self.data_type == 'sd':
-            pass
+            labels = []
+            values = []
+            for i in self.data.values:
+                labels.append(i[1])
+                values.append(i[0])
+            self.drawScreen.axes.grid()
+            self.drawScreen.axes.bar(labels, values)
         self.drawScreen.draw()
 
 
