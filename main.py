@@ -81,6 +81,13 @@ class SettingsWindow(QMainWindow, Ui_settings):
         pass
         if self.lineEdit.text():  # если есть разделитель, то считываем и обновляем его
             self.MainMenu.delimiter = self.lineEdit.text()
+
+        if self.comboBox.currentText() == 'График':
+            self.MainMenu.data_type = 'g'
+        elif self.comboBox.currentText() == 'Круговая диаграмма':
+            self.MainMenu.data_type = 'rd'
+        elif self.comboBox.currentText() == 'Столбчатая диаграмма':
+            self.MainMenu.data_type = 'sd'
     def open(self):
         if self.DataMenu is None:
             self.DataMenu = DataWinwow()  # создаем объект класса меню настроек
@@ -99,6 +106,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.SettingWindow = None  # создаем переменную для окна настройки
         self.delimiter = ','  # переменная для хранения разделителя
         self.data = pd.DataFrame({})  # переменная для dataframe
+        self.data_type = 'g'
+
 
         # добавляем пункты меню и привязываем их к функциям
 
@@ -116,7 +125,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             file_dialog = QFileDialog()
             file_path, _ = file_dialog.getOpenFileName(None, "Открыть файл")
             self.data = pd.read_csv(file_path, delimiter=self.delimiter)
-            # self.update()
+            self.update()
             self.settings()
         except Exception:
             pass
@@ -124,9 +133,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def update(self):  # функция обновления рисует холст
         if self.data.empty:
             return
-        self.drawScreen.axes.cla()
-        self.data.plot(ax=self.drawScreen.axes)
+
+        if self.data_type == 'g':
+            x = [[] for i in range(len(self.data.values[0]) // 2)]
+            y = [[] for i in range(len(self.data.values[0]) // 2)]
+            for i in self.data.values:
+                for e, j in enumerate(i):
+                    if e % 2:
+                        y[e // 2].append(j)
+                    else:
+                        x[e // 2].append(j)
+                pass
+            for i in range(len(x)):
+
+                self.drawScreen.axes.cla()
+                self.data.plot(x[i], y[i])
+
+        elif self.data_type == 'rd':
+            pass
+        elif self.data_type == 'sd':
+            pass
         self.drawScreen.draw()
+
+
+
 
     def settings(self):  # функция вызова меню настроек
         if self.SettingWindow is None:
